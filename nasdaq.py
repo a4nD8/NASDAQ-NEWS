@@ -1,32 +1,18 @@
-"""
-📰 NASDAQ News Alert Bot
-Auteur: a4nD8 (Jordy Philippaerts)
-Doel: Realtime alerts via Telegram voor impactvol marktnieuws m.b.t. NASDAQ/Big Tech
-"""
-
 import websocket
 import json
 import time
 import threading
-import os
-from dotenv import load_dotenv
 from telegram import Bot
 
-# === Load .env secrets ===
-load_dotenv()
+# === CONFIG ===
+FINNHUB_API_KEY = 'd14mrbhr01qq13os83a0d14mrbhr01qq13os83ag'
+TELEGRAM_BOT_TOKEN = '7252775786:AAEmqjKcf1ioKqkW8ujRJqje5MmV5MwomKU'
+TELEGRAM_CHAT_ID = '-4875516619'
 
-FINNHUB_API_KEY = os.getenv('FINNHUB_API_KEY')
-TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
-
-# === Check op missende env vars ===
-if not all([FINNHUB_API_KEY, TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID]):
-    print("❌ Eén of meerdere environment variabelen ontbreken.")
-    print("📌 Controleer of je een geldig .env bestand hebt met FINNHUB_API_KEY, TELEGRAM_BOT_TOKEN en TELEGRAM_CHAT_ID.")
-    exit(1)
-
-# === Config ===
+# Maximaal aantal symbolen (veilig < 20)
 SYMBOLS = ['general', 'AAPL', 'MSFT', 'GOOGL', 'AMZN', 'TSLA', 'NVDA', 'META', 'QQQ', 'NQ=F']
+
+# NASDAQ-impact keywords
 KEYWORDS = [
     'NASDAQ', 'NQ=F', 'QQQ', 'tech sector', 'rate hike', 'Federal Reserve', 'FOMC',
     'inflation', 'interest rate', 'recession', 'CPI', 'PPI', 'unemployment',
@@ -35,7 +21,10 @@ KEYWORDS = [
     'FAANG', 'Big Tech', 'SPAC', 'IPO', 'jobless claims'
 ]
 
+# Cache voor reeds verstuurde berichten
 sent_headlines = set()
+
+# Telegram bot
 bot = Bot(token=TELEGRAM_BOT_TOKEN)
 
 def send_alert(title, summary, url):
@@ -94,12 +83,9 @@ def start_socket():
 if __name__ == "__main__":
     websocket.enableTrace(False)
 
+    print("🚀 NASDAQ WebSocket Alert Bot gestart.")
+    start_socket()
+
+    # Voorkom dat het script stopt
     while True:
-        try:
-            print("🚀 NASDAQ WebSocket Alert Bot gestart.")
-            start_socket()
-            while True:
-                time.sleep(60)
-        except Exception as e:
-            print(f"💥 Fout op hoofdniveau: {e}. Herstart binnen 5 seconden...")
-            time.sleep(5)
+        time.sleep(60)
